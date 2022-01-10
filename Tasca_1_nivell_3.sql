@@ -65,7 +65,90 @@ CREATE TABLE playlist
     number_of_songs INT         NOT NULL,
     creation_date   DATE        NOT NULL,
     date_deleted    DATE,
-    user            INT         NOT NULL,
-    CONSTRAINT fk_playlist_user FOREIGN KEY (user) REFERENCES user (id)
+    shared          BOOLEAN     NOT NULL,
+    author          INT         NOT NULL,
+    CONSTRAINT fk_playlist_author FOREIGN KEY (author) REFERENCES user (id),
+    CONSTRAINT check_playlist_against_deleted_and_shared CHECK (
+        NOT (shared = TRUE AND date_deleted IS NOT NULL)
+        )
 );
 
+
+CREATE TABLE artist
+(
+    id    INT PRIMARY KEY AUTO_INCREMENT,
+    name  VARCHAR(50) NOT NULL,
+    image BLOB        NOT NULL
+);
+
+CREATE TABLE album
+(
+    id                  INT PRIMARY KEY AUTO_INCREMENT,
+    title               VARCHAR(200) NOT NULL,
+    year_of_publication INT(4)       NOT NULL,
+    cover               BLOB         NOT NULL,
+    artist              INT          NOT NULL,
+    CONSTRAINT fk_album_artist FOREIGN KEY (artist) REFERENCES artist (id)
+
+);
+
+CREATE TABLE song
+(
+    id           INT PRIMARY KEY AUTO_INCREMENT,
+    title        VARCHAR(200) NOT NULL,
+    duration     TIME         NOT NULL,
+    times_played INT          NOT NULL,
+    album        INT          NOT NULL,
+    CONSTRAINT fk_song_album FOREIGN KEY (album) REFERENCES album (id)
+
+);
+
+-- cada cançó només pot ser afegida un cop a una playlist, per això playlist + song == clau primària composta
+-- added_by és un usuari qualsevol que ha afegit la cançó a una playlist creada i compartida per ell mateix o un altre usuari
+CREATE TABLE playlist_item
+(
+    playlist INT,
+    song     INT,
+    added_by INT  NOT NULL,
+    added_on DATE NOT NULL,
+    CONSTRAINT pk_playlist_item PRIMARY KEY (playlist, song),
+    CONSTRAINT fk_playlist_item_playlist FOREIGN KEY (playlist) REFERENCES playlist (id),
+    CONSTRAINT fk_playlist_item_song FOREIGN KEY (song) REFERENCES song (id),
+    CONSTRAINT fk_playlist_item_added_by FOREIGN KEY (added_by) REFERENCES user (id)
+);
+
+CREATE TABLE user_followed_artist
+(
+    user   INT,
+    artist INT,
+    CONSTRAINT pk_user_followed_artist PRIMARY KEY (user, artist),
+    CONSTRAINT fk_user_followed_artist_user FOREIGN KEY (user) REFERENCES user (id),
+    CONSTRAINT fk_user_followed_artist_artist FOREIGN KEY (artist) REFERENCES artist (id)
+);
+
+CREATE TABLE similar_artist
+(
+    artist         INT,
+    similar_artist INT,
+    CONSTRAINT pk_similar_artist PRIMARY KEY (artist, similar_artist),
+    CONSTRAINT fk_similar_artist_artist FOREIGN KEY (artist) REFERENCES artist (id),
+    CONSTRAINT fk_similar_artist_similar_artist FOREIGN KEY (similar_artist) REFERENCES artist (id)
+);
+
+CREATE TABLE user_favorite_song
+(
+    user INT,
+    song INT,
+    CONSTRAINT pk_user_favorite_song PRIMARY KEY (user, song),
+    CONSTRAINT fk_user_favorite_song_user FOREIGN KEY (user) REFERENCES user (id),
+    CONSTRAINT fk_user_favorite_song_song FOREIGN KEY (song) REFERENCES song (id)
+);
+
+CREATE TABLE user_favorite_album
+(
+    user  INT,
+    album INT,
+    CONSTRAINT pk_user_favorite_album PRIMARY KEY (user, album),
+    CONSTRAINT fk_user_favorite_album_user FOREIGN KEY (user) REFERENCES user (id),
+    CONSTRAINT fk_user_favorite_album_album FOREIGN KEY (album) REFERENCES album (id)
+);

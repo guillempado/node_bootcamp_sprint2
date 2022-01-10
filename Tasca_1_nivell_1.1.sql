@@ -1,4 +1,3 @@
--- NIVELL 1.1 - Òptica
 
 CREATE DATABASE Optica;
 USE Optica;
@@ -111,5 +110,3 @@ CREATE TABLE sale
     CONSTRAINT fk_sale_employee FOREIGN KEY (employee) REFERENCES employee (id),
     CONSTRAINT fk_sale_client FOREIGN KEY (client) REFERENCES client (id)
 );
-
-

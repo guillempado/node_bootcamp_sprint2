@@ -1,4 +1,3 @@
-
 CREATE DATABASE Pizzeria;
 USE Pizzeria;
 
@@ -83,8 +82,8 @@ CREATE TABLE sale
     CONSTRAINT fk_sale_store FOREIGN KEY (store) REFERENCES store (id),
     CONSTRAINT fk_sale_home_delivery FOREIGN KEY (home_delivery) REFERENCES home_delivery (id),
     CONSTRAINT check_sale_home_delivery CHECK (
-        (NOT (delivery = 'home_address') AND home_delivery IS NULL) OR
-        (delivery = 'home_address' AND home_delivery IS NOT NULL))
+            (NOT (delivery = 'home_address') AND home_delivery IS NULL) OR
+            (delivery = 'home_address' AND home_delivery IS NOT NULL))
 );
 
 CREATE TABLE pizza_category
@@ -103,17 +102,17 @@ CREATE TABLE product
     pizza_category INT,
     CONSTRAINT fk_product_pizza_category FOREIGN KEY (pizza_category) REFERENCES pizza_category (id),
     CONSTRAINT product_pizza_category_notnull CHECK (
-        (NOT(type = 'pizza') AND pizza_category IS NULL) OR
-        (type = 'pizza' AND pizza_category IS NOT NULL))
+            (NOT (type = 'pizza') AND pizza_category IS NULL) OR
+            (type = 'pizza' AND pizza_category IS NOT NULL))
 );
 
 CREATE TABLE sale_line
 (
-    id             INT PRIMARY KEY AUTO_INCREMENT,
-    sale INT           NOT NULL,
-    product        INT           NOT NULL,
-    quantity       INT           NOT NULL,
-    total_price    DECIMAL(5, 2) NOT NULL,
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    sale        INT           NOT NULL,
+    product     INT           NOT NULL,
+    quantity    INT           NOT NULL,
+    total_price DECIMAL(5, 2) NOT NULL,
     CONSTRAINT fk_sale_line_sale FOREIGN KEY (sale) REFERENCES sale (id),
     CONSTRAINT fk_sale_line_product FOREIGN KEY (product) REFERENCES product (id)
 );

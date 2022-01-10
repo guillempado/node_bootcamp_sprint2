@@ -20,16 +20,16 @@ CREATE TABLE credit_card
     expiration_month INT NOT NULL,
     expiration_year  INT NOT NULL,
     security_code    INT NOT NULL,
-    subscription     INT NOT NULL,
-    CONSTRAINT fk_credit_card_subscription FOREIGN KEY (subscription) REFERENCES subscription (id)
+    user             INT NOT NULL,
+    CONSTRAINT fk_credit_card_user FOREIGN KEY (user) REFERENCES user (id)
 );
 
 CREATE TABLE paypal
 (
-    id           INT PRIMARY KEY AUTO_INCREMENT,
-    username     VARCHAR(50) NOT NULL,
-    subscription INT         NOT NULL,
-    CONSTRAINT fk_paypal_subscription FOREIGN KEY (subscription) REFERENCES subscription (id)
+    id       INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL,
+    user     INT         NOT NULL,
+    CONSTRAINT fk_paypal_user FOREIGN KEY (user) REFERENCES user (id)
 );
 
 CREATE TABLE subscription
@@ -38,16 +38,14 @@ CREATE TABLE subscription
     user         INT                            NOT NULL,
     start_date   DATE                           NOT NULL,
     renewal_date DATE                           NOT NULL,
+    credit_card  INT,
+    paypal       INT,
     payment      ENUM ('credit_card', 'paypal') NOT NULL,
 
     CONSTRAINT fk_subscription_user FOREIGN KEY (user) REFERENCES user (id),
-    CONSTRAINT check_subscription_payment CHECK (
-            (SELECT count(s.id)
-             FROM subscription s,
-                  credit_card c,
-                  paypal p
-             WHERE c.subscription = s.id
-                OR p.subscription = s.id) = 1)
+    CONSTRAINT fk_subscription_credit_card FOREIGN KEY (credit_card) REFERENCES credit_card (id),
+    CONSTRAINT fk_subscription_paypal FOREIGN KEY (paypal) REFERENCES paypal (id),
+    CONSTRAINT check_subscription_has_one_payment CHECK (credit_card IS NOT NULL XOR paypal IS NOT NULL)
 );
 
 CREATE TABLE payment

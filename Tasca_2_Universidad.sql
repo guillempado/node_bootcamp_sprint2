@@ -119,30 +119,84 @@ WHERE id NOT IN (
     FROM departamento d
              JOIN profesor p ON d.id = p.id_departamento
              JOIN asignatura a ON p.id_profesor = a.id_profesor
-)
+);
 
 
 -- Tercer apartat: Consultes resum
 
 -- 1
+SELECT COUNT(*)
+FROM persona
+WHERE tipo = 'alumno';
 
 -- 2
+SELECT COUNT(*)
+FROM persona
+WHERE tipo = 'alumno'
+  AND LEFT(fecha_nacimiento, 4) = '1999';
 
 -- 3
+SELECT d.nombre AS departamento, COUNT(p.id_profesor) AS num_de_profesores
+FROM departamento d
+         JOIN profesor p ON d.id = p.id_departamento
+GROUP BY d.id
+ORDER BY num_de_profesores DESC;
 
 -- 4
+SELECT d.nombre AS departamento, COUNT(p.id_profesor) AS num_de_profesores
+FROM departamento d
+         LEFT JOIN profesor p ON d.id = p.id_departamento
+GROUP BY d.id;
 
 -- 5
+SELECT g.nombre AS grado, COUNT(a.id) AS num_asignaturas
+FROM grado g
+         LEFT JOIN asignatura a ON g.id = a.id_grado
+GROUP BY g.id
+ORDER BY num_asignaturas DESC;
 
 -- 6
+SELECT *
+FROM (
+         SELECT g.nombre AS grado, COUNT(a.id) AS num_asignaturas
+         FROM grado g
+                  JOIN asignatura a ON g.id = a.id_grado
+         GROUP BY g.id
+         ORDER BY num_asignaturas DESC
+     ) src_alias
+WHERE num_asignaturas > 40;
 
 -- 7
+SELECT g.nombre AS grado, a.tipo AS tipo_asignatura, SUM(a.creditos) AS num_creditos
+FROM grado g
+         JOIN asignatura a ON g.id = a.id_grado
+GROUP BY g.id, a.tipo;
 
 -- 8
+SELECT c.anyo_inicio, COUNT(m.id_alumno) AS num_alumnos
+FROM curso_escolar c
+         LEFT JOIN alumno_se_matricula_asignatura m ON c.id = m.id_curso_escolar
+GROUP BY c.id;
 
 -- 9
+SELECT per.id, per.nombre, apellido1, apellido2, COUNT(a.id) AS num_asignaturas
+FROM persona per
+         LEFT JOIN asignatura a ON per.id = a.id_profesor
+WHERE per.tipo = 'profesor'
+GROUP BY per.id
+ORDER BY num_asignaturas DESC;
 
 -- 10
+SELECT *
+FROM persona
+WHERE fecha_nacimiento = (SELECT MAX(fecha_nacimiento)
+                          FROM persona
+                          WHERE tipo = 'alumno');
 
 -- 11
-
+SELECT per.nombre, apellido1, apellido2
+FROM persona per
+         JOIN profesor pro ON per.id = pro.id_profesor
+         JOIN departamento d ON pro.id_departamento = d.id
+         LEFT JOIN asignatura a ON pro.id_profesor = a.id_profesor
+WHERE a.id IS NULL;

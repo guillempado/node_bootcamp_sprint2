@@ -71,22 +71,56 @@ FROM persona p,
      curso_escolar c
 WHERE p.id = m.id_alumno
   AND m.id_curso_escolar = c.id
-  AND c.anyo_inicio = '2018'
-
+  AND c.anyo_inicio = '2018';
 
 -- Segon apartat: LEFT JOIN i RIGHT JOIN
 
 -- 1
+SELECT d.nombre AS departamento, apellido1, apellido2, per.nombre
+FROM persona per
+         LEFT JOIN profesor pro ON per.id = pro.id_profesor
+         LEFT JOIN departamento d ON pro.id_departamento = d.id
+WHERE per.tipo = 'profesor'
+ORDER BY d.nombre, apellido1, apellido2, per.nombre;
 
 -- 2
+SELECT per.nombre, apellido1, apellido2
+FROM persona per
+         LEFT JOIN profesor pro ON per.id = pro.id_profesor
+WHERE per.tipo = 'profesor'
+  AND pro.id_departamento IS NULL;
 
 -- 3
+SELECT d.*
+FROM departamento d
+         LEFT JOIN profesor p ON d.id = p.id_departamento
+WHERE id_profesor IS NULL;
 
 -- 4
+SELECT DISTINCT per.*
+FROM persona per
+         LEFT JOIN asignatura a ON per.id = a.id_profesor
+WHERE per.tipo = 'profesor'
+  AND a.id IS NULL;
 
 -- 5
+-- No entenc molt bé aquesta... no cal fer cap join?
+SELECT *
+FROM asignatura
+WHERE id_profesor IS NULL;
 
 -- 6
+-- que un profe d'un departament no tingui assignatures (fent left join i mirant nulls) no vol dir que el departament no en tingui: hauria de mirar totes les combinacions departament + profe + assignatura i validar que tots els profes de cada departament tenen un null a id d'assignatura. No acabo d'entendre com hauria d'implementar aquesta comprovació exhaustiva i només se m'acut fer-ho al revés: mirar els departaments que en tenen alguna assignatura i seleccionar els contraris.
+
+SELECT *
+FROM departamento
+WHERE id NOT IN (
+    SELECT d.id
+    FROM departamento d
+             JOIN profesor p ON d.id = p.id_departamento
+             JOIN asignatura a ON p.id_profesor = a.id_profesor
+)
+
 
 -- Tercer apartat: Consultes resum
 

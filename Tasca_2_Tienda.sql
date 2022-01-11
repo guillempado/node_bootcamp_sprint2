@@ -1,3 +1,5 @@
+USE tienda;
+
 -- 1
 SELECT nombre
 FROM producto;
@@ -261,9 +263,9 @@ WHERE p.codigo_fabricante = f.codigo
   AND f.nombre = 'Asus'
   AND precio
     > (
-    SELECT AVG(p.precio)
-    FROM producto p
-    , fabricante f
-    WHERE p.codigo_fabricante = f.codigo
-  AND f.nombre = 'Asus'
-    );
+          SELECT AVG(p.precio)
+          FROM producto p,
+               fabricante f
+          WHERE p.codigo_fabricante = f.codigo
+            AND f.nombre = 'Asus'
+      );
